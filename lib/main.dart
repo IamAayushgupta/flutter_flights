@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flight_booking/pages/login.dart';
+import 'package:flight_booking/pages/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Flutter Flights (setState + Ads Slider)',
             theme: ThemeData(primarySwatch: Colors.teal),
-            home: LoginPage(),
+            home: SplashPage(),
           ),
         ),
       ),
@@ -193,9 +194,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print('❌ Error in searchFlights: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Network or server error: $e')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Network or server error: $e')),
+      // );
 
       // 🔹 Optional: use mock data as fallback
       await Future.delayed(const Duration(milliseconds: 700));

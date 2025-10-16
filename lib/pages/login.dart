@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../AppConstants.dart' as AppContants;
 import '../main.dart';
 import '../services/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -99,19 +100,23 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(res['message'] ?? 'Login successful')),
         );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userName', name);
+        await prefs.setString('userPhone', mobile);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => HomeScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['message'] ?? 'Login failed')),
+          SnackBar(content: Text('User not found')),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error: $e')),
+      // );
     }
     setState(() => loading = false);
   }
