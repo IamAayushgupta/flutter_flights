@@ -1,5 +1,5 @@
-// lib/models/flight.dart
 class Flight {
+  final int id;
   final String airline;
   final String flightNumber;
   final String from;
@@ -11,6 +11,7 @@ class Flight {
   final String cabin;
 
   Flight({
+    required this.id,
     required this.airline,
     required this.flightNumber,
     required this.from,
@@ -22,31 +23,18 @@ class Flight {
     required this.cabin,
   });
 
-  // Optional: helper to compute duration
-  Duration get duration => arrive.difference(depart);
-
-  // Optional: fromJson/toJson if you later integrate with REST
-  factory Flight.fromJson(Map<String, dynamic> j) => Flight(
-    airline: j['airline'] as String,
-    flightNumber: j['flightNumber'] as String,
-    from: j['from'] as String,
-    to: j['to'] as String,
-    depart: DateTime.parse(j['depart'] as String),
-    arrive: DateTime.parse(j['arrive'] as String),
-    stops: j['stops'] as int,
-    price: (j['price'] as num).toDouble(),
-    cabin: j['cabin'] as String,
-  );
-
-  Map<String, dynamic> toJson() => {
-    'airline': airline,
-    'flightNumber': flightNumber,
-    'from': from,
-    'to': to,
-    'depart': depart.toIso8601String(),
-    'arrive': arrive.toIso8601String(),
-    'stops': stops,
-    'price': price,
-    'cabin': cabin,
-  };
+  factory Flight.fromJson(Map<String, dynamic> json) {
+    return Flight(
+      id: json['id'],
+      airline: json['airline'],
+      flightNumber: json['flight_number'],
+      from: json['from'],
+      to: json['to'],
+      depart: DateTime.parse(json['departure_time']),
+      arrive: DateTime.parse(json['arrival_time']),
+      stops: json['stops'],
+      price: (json['price'] as num).toDouble(),
+      cabin: json['cabin'],
+    );
+  }
 }

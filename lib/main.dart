@@ -1,12 +1,17 @@
 // lib/main.dart
 import 'dart:async';
+import 'dart:convert';
+import 'package:flight_booking/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 // import the model
+import 'AppConstants.dart';
 import 'SearchResultsScreen.dart';
 import 'models/MockFlightService.dart';
 import 'models/flight.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -19,22 +24,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black12,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/background.jpg'),
+          fit: BoxFit.cover, // cover entire screen
+        ),
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 400,
-            maxHeight: MediaQuery.sizeOf(context).height -10,
+            maxWidth: 500,
+            maxHeight: MediaQuery.sizeOf(context).height,
           ),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Flights (setState + Ads Slider)',
-            theme: ThemeData(primarySwatch: Colors.indigo),
-            home: HomeScreen(),
+            theme: ThemeData(primarySwatch: Colors.teal),
+            home: LoginPage(),
           ),
         ),
       ),
     );
+
   }
 }
 
@@ -123,43 +134,99 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> searchFlights() async {
+    print(from + to + "${departDate}");
     if (from.isEmpty || to.isEmpty || departDate == null) {
-      throw Exception('Please fill From, To and Depart date.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill From, To, and Depart date.')),
+      );
+      return;
     }
+
     setState(() {
       loading = true;
       results = [];
     });
 
-    await Future.delayed(Duration(milliseconds: 700));
-    final list = MockFlightService.search(
-      from: from,
-      to: to,
-      departDate: departDate!,
-      cabin: cabin,
-      adults: adults,
-      children: children,
-      infants: infants,
-    );
+    try {
+      // 🔹 Format date correctly (avoid "Instance of DateTime" issue)
+      final formattedDate = DateFormat("yyyy-MM-dd'T'HH").format(departDate!);
 
-    // apply sort locally (default price asc)
-    list.sort((a, b) => a.price.compareTo(b.price));
-    setState(() {
-      results = list;
-      loading = false;
-      sortBy = 'price_asc';
-    });
+      final url = Uri.parse(
+        "$baseUrl/flights/search?from=$from&to=$to&date=2025-09-20T09:30:00",
+      );
 
-    // navigate to results
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SearchResultsScreen(
-        results: results,
+      print('🔍 Searching flights: $url');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['flights'] != null) {
+          final flights = (data['flights'] as List)
+              .map((e) => Flight.fromJson(e))
+              .toList();
+
+          if (flights.isEmpty) {
+            throw Exception("No flights found for given criteria");
+          }
+
+          setState(() {
+            results = flights;
+            loading = false;
+            sortBy = 'price_asc';
+          });
+
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => SearchResultsScreen(
+              results: results,
+              from: from,
+              to: to,
+              initialSort: sortBy,
+            ),
+          ));
+          return;
+        } else {
+          throw Exception(data['message'] ?? 'No flights found');
+        }
+      } else {
+        throw Exception("Server error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print('❌ Error in searchFlights: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network or server error: $e')),
+      );
+
+      // 🔹 Optional: use mock data as fallback
+      await Future.delayed(const Duration(milliseconds: 700));
+      final mockList = MockFlightService.search(
         from: from,
         to: to,
-        initialSort: sortBy,
-      ),
-    ));
+        departDate: departDate!,
+        cabin: cabin,
+        adults: adults,
+        children: children,
+        infants: infants,
+      );
+
+      mockList.sort((a, b) => a.price.compareTo(b.price));
+      setState(() {
+        results = mockList;
+        loading = false;
+        sortBy = 'price_asc';
+      });
+
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => SearchResultsScreen(
+          results: results,
+          from: from,
+          to: to,
+          initialSort: sortBy,
+        ),
+      ));
+    }
   }
+
 
   Future<void> _pickDate(BuildContext context, {required bool isReturn}) async {
     final now = DateTime.now();
@@ -338,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     child: Card(
-                      color: Color(0xFF9FB0FF), // <-- custom background color
+                      color: Colors.teal, // <-- custom background color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -426,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.indigo,
+        backgroundColor: Colors.teal,
         title: Text('Search flights',style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
@@ -515,7 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size.fromHeight(48),
-                  backgroundColor: Colors.indigo,   // <-- background color
+                  backgroundColor: Colors.teal,   // <-- background color
                   foregroundColor: Colors.white,    // <-- text & icon color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10), // optional rounded corners

@@ -57,7 +57,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
-        backgroundColor: Colors.indigo,
+        backgroundColor: Colors.teal,
         title: Text('$titleFrom → $titleTo',style: TextStyle(color: Colors.white),),
         actions: [
           PopupMenuButton<String>(
@@ -111,7 +111,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                       padding: EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          CircleAvatar(child: Text(f.airline[0],style: TextStyle(color: Colors.white),),backgroundColor: Colors.indigo, radius: 24),
+                          CircleAvatar(child: Text(f.airline[0],style: TextStyle(color: Colors.white),),backgroundColor: Colors.teal, radius: 24),
                           SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -131,7 +131,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               SizedBox(height: 6),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo,   // <-- button background
+                                  backgroundColor: Colors.teal,   // <-- button background
                                   foregroundColor: Colors.white,    // <-- text (and icon) color
                                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   shape: RoundedRectangleBorder(
@@ -176,10 +176,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               _applySort();
             },);
           },backgroundColor: Colors.white,
-            selectedColor: Colors.indigo.shade100,   // <-- background when selected
-            checkmarkColor: Colors.indigo,           // <-- tick/check color
+            selectedColor: Colors.teal.shade100,   // <-- background when selected
+            checkmarkColor: Colors.teal,           // <-- tick/check color
             labelStyle: TextStyle(
-              color: sortBy == 'price_asc' ? Colors.indigo : Colors.black, // text color changes
+              color: sortBy == 'price_asc' ? Colors.teal : Colors.black, // text color changes
             ),),
         ],
       ),

@@ -31,7 +31,7 @@ class FlightDetailSheet extends StatelessWidget {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Color(0xFF9FB0FF), // brand color
+                      backgroundColor: Colors.teal, // brand color
                       child: Text(
                         flight.airline[0],
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -86,7 +86,7 @@ class FlightDetailSheet extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Icon(Icons.flight_takeoff, color: Color(0xFF9FB0FF)),
+                    Icon(Icons.flight_takeoff, color: Colors.teal),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -104,7 +104,7 @@ class FlightDetailSheet extends StatelessWidget {
                 // Duration
                 Row(
                   children: [
-                    Icon(Icons.schedule, color: Color(0xFF9FB0FF)),
+                    Icon(Icons.schedule, color: Colors.teal),
                     SizedBox(width: 8),
                     Text(
                       '${duration.inHours}h ${duration.inMinutes % 60}m • ${flight.stops} stop(s)',
@@ -134,7 +134,7 @@ class FlightDetailSheet extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF9FB0FF), // brand color
+                          backgroundColor: Colors.teal, // brand color
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
@@ -150,7 +150,7 @@ class FlightDetailSheet extends StatelessWidget {
                     OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
-                        side: BorderSide(color: Color(0xFF9FB0FF)),
+                        side: BorderSide(color: Colors.teal),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       onPressed: () => Navigator.of(context).pop(),

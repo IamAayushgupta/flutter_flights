@@ -1,7 +1,3 @@
-/* ---------------------------
-   Mock Service
-   --------------------------- */
-
 import 'flight.dart';
 
 class MockFlightService {
@@ -17,11 +13,14 @@ class MockFlightService {
     required int infants,
   }) {
     final base = DateTime(departDate.year, departDate.month, departDate.day, 6);
+
     List<Flight> list = List.generate(6, (i) {
       final depart = base.add(Duration(hours: i * 2, minutes: (i % 3) * 15));
       final arrive = depart.add(Duration(hours: 1 + (i % 3), minutes: (i * 10) % 60));
       final price = 2000.0 + i * 700 + (cabin == 'Business' ? 4500 : 0) + (adults - 1) * 1500;
+
       return Flight(
+        id: i + 1, // 👈 Add this line
         airline: airlines[i % airlines.length],
         flightNumber: '${100 + i}',
         from: from,
