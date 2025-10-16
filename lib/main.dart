@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           ),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Flights (setState + Ads Slider)',
+            title: 'Flutter Flights',
             theme: ThemeData(primarySwatch: Colors.teal),
             home: SplashPage(),
           ),
@@ -187,10 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ));
           return;
         } else {
-          throw Exception(data['message'] ?? 'No flights found');
+          // throw Exception(data['message'] ?? 'No flights found');
         }
       } else {
-        throw Exception("Server error: ${response.statusCode}");
+        // throw Exception("Server error: ${response.statusCode}");
       }
     } catch (e) {
       print('❌ Error in searchFlights: $e');
