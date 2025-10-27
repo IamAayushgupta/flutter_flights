@@ -135,7 +135,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> searchFlights() async {
-    print(from + to + "${departDate}");
+    print('$from $to $departDate');
+
     if (from.isEmpty || to.isEmpty || departDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill From, To, and Depart date.')),
@@ -143,20 +144,22 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    // Start loading state
     setState(() {
       loading = true;
       results = [];
     });
 
     try {
-      // 🔹 Format date correctly (avoid "Instance of DateTime" issue)
+      // ✅ Format date correctly
       final formattedDate = DateFormat("yyyy-MM-dd'T'HH").format(departDate!);
 
       final url = Uri.parse(
-        "$baseUrl/flights/search?from=$from&to=$to&date=2025-09-20T09:30:00",
+        "$baseUrl/flights/search?from=$from&to=$to&date=$formattedDate",
       );
 
       print('🔍 Searching flights: $url');
+
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -171,35 +174,38 @@ class _HomeScreenState extends State<HomeScreen> {
             throw Exception("No flights found for given criteria");
           }
 
+          // ✅ Update state first
           setState(() {
             results = flights;
             loading = false;
             sortBy = 'price_asc';
           });
 
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => SearchResultsScreen(
-              results: results,
-              from: from,
-              to: to,
-              initialSort: sortBy,
-            ),
-          ));
+          // ✅ Navigate safely after build completes
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => SearchResultsScreen(
+                  results: results,
+                  from: from,
+                  to: to,
+                  initialSort: sortBy,
+                ),
+              ),
+            );
+          });
           return;
         } else {
-          // throw Exception(data['message'] ?? 'No flights found');
+          throw Exception(data['message'] ?? 'No flights found');
         }
       } else {
-        // throw Exception("Server error: ${response.statusCode}");
+        throw Exception("Server error: ${response.statusCode}");
       }
     } catch (e) {
       print('❌ Error in searchFlights: $e');
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Network or server error: $e')),
-      // );
 
-      // 🔹 Optional: use mock data as fallback
-      await Future.delayed(const Duration(milliseconds: 700));
+      // Fallback to mock data after delay
+      await Future.delayed(const Duration(milliseconds: 500));
       final mockList = MockFlightService.search(
         from: from,
         to: to,
@@ -211,22 +217,29 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       mockList.sort((a, b) => a.price.compareTo(b.price));
+
       setState(() {
         results = mockList;
         loading = false;
         sortBy = 'price_asc';
       });
 
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => SearchResultsScreen(
-          results: results,
-          from: from,
-          to: to,
-          initialSort: sortBy,
-        ),
-      ));
+      // ✅ Safe navigation here too
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => SearchResultsScreen(
+              results: results,
+              from: from,
+              to: to,
+              initialSort: sortBy,
+            ),
+          ),
+        );
+      });
     }
   }
+
 
 
   Future<void> _pickDate(BuildContext context, {required bool isReturn}) async {
@@ -314,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text == '') return const Iterable<String>.empty();
+        if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
         return _airports.where((a) => a.toLowerCase().contains(textEditingValue.text.toLowerCase()));
       },
       onSelected: (selection) {
@@ -322,26 +335,23 @@ class _HomeScreenState extends State<HomeScreen> {
         setter(selection);
       },
       fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-        // link controllers
-        textController.text = controller.text;
-        textController.selection = controller.selection;
-        textController.addListener(() {
-          controller.text = textController.text;
-        });
         return TextFormField(
-          controller: textController,
+          controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: label,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             isDense: true,
-            suffixIcon: label == 'From' ? Icon(Icons.flight_takeoff) : Icon(Icons.flight_land),
+            suffixIcon: label == 'From'
+                ? const Icon(Icons.flight_takeoff)
+                : const Icon(Icons.flight_land),
           ),
-          onChanged: (v) => setter(v),
+          onChanged: setter,
         );
       },
     );
   }
+
 
   Widget _buildQuickSuggestions() {
     final suggestions = ['Mumbai (BOM)', 'Delhi (DEL)', 'Bengaluru (BLR)'];
